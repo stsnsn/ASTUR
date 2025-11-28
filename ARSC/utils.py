@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+__author__ = 'Satoshi_Nishino'
+__email__ = 'satoshi-nishino@g.ecc.u-tokyo.ac.jp'
+
+
+"""
+This script was created to build a file processing utility for ARSC computations.
+"""
+
+
 import os
 import re
 import gzip
