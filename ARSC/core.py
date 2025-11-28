@@ -17,6 +17,7 @@ Original citations for calculation metrics:
 
 import os
 from Bio import SeqIO
+from collections import Counter
 
 # Amino acid dictionary
 # -----------------------
@@ -49,40 +50,51 @@ aa_dictionary = {
 
 # Compute ARSCs (N/C/S/MW)
 # -----------------------
-def compute_ARSC_extended(seq, aa_dict=aa_dictionary):
-    seq = seq.replace("*", "")
-    L = len(seq)
-    if L == 0:
-        return (None, None, None, None)
+def compute_ARSC_extended_counts(counts, aa_dict):
+    total_aa = sum(counts.values())
+    if total_aa == 0:
+        return None, None, None, None
 
-    total_N = total_C = total_S = total_MW = 0
-
-    for aa in seq:
-        if aa in aa_dict:
-            info = aa_dict[aa]
-            total_N  += info["N"]
-            total_C  += info["C"]
-            total_S  += info["S"]
-            total_MW += info["MW"]
+    total_N  = sum(counts[a] * aa_dict[a]["N"]  for a in counts if a in aa_dict)
+    total_C  = sum(counts[a] * aa_dict[a]["C"]  for a in counts if a in aa_dict)
+    total_S  = sum(counts[a] * aa_dict[a]["S"]  for a in counts if a in aa_dict)
+    total_MW = sum(counts[a] * aa_dict[a]["MW"] for a in counts if a in aa_dict)
 
     return (
-        total_N  / L,
-        total_C  / L,
-        total_S  / L,
-        total_MW / L
+        total_N  / total_aa,
+        total_C  / total_aa,
+        total_S  / total_aa,
+        total_MW / total_aa
     )
 
 
-# Process a .faa file
-# -----------------------
-def process_faa(faa_path):
-    genome_name = os.path.basename(faa_path).replace(".faa", "")
+def process_faa(faa_source, name=None):
+    try:
+        # Determine genome name
+        genome_name = name
+        if genome_name is None:
+            # faa_source is a path string
+            base = os.path.basename(faa_source)
+            for ext in [".faa.gz", ".faa", ".gz"]:
+                if base.endswith(ext):
+                    base = base[: -len(ext)]
+            genome_name = base
 
-    full_seq = ""
+        counts = Counter()
 
-    for record in SeqIO.parse(faa_path, "fasta"):
-        full_seq += str(record.seq)
+        for record in SeqIO.parse(faa_source, "fasta"):
+            seq = str(record.seq).replace("*", "")
+            counts.update(seq)
 
-    N_ARSC, C_ARSC, S_ARSC, MW_ARSC = compute_ARSC_extended(full_seq, aa_dictionary)
+        N, C, S, MW = compute_ARSC_extended_counts(counts, aa_dictionary)
 
-    return (genome_name, N_ARSC, C_ARSC, S_ARSC, MW_ARSC)
+        return {
+            "genome": genome_name,
+            "N_ARSC": N,
+            "C_ARSC": C,
+            "S_ARSC": S,
+            "MW_ARSC": MW
+        }
+
+    except Exception as e:
+        return {"genome": genome_name if name else None, "error": str(e)}

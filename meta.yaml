@@ -1,6 +1,6 @@
 package:
   name: arsc
-  version: "0.1.0"
+  version: "0.2.0"
 
 source:
   git_url: https://github.com/stsnsn/ARSC.git
@@ -16,7 +16,7 @@ requirements:
     - pip
   run:
     - python >=3.8
-    - biopython
+    - biopython >=1.79
 
 test:
   commands:

@@ -14,42 +14,48 @@ Original citations for calculation metrics:
     Wright F. 1990. The 'effective number of codons' used in a gene. Gene 87 23-29.
 """
 
-# USAGE: python ARSC.py -i <input directory of protein files> -o <outputfile> -t <num_threads>
+# USAGE: python ARSC.py -i <protein file (faa) or directory> -o <TSV name (optional)> -t <num_threads>
 # e.g., python ARSC.py -i protein_faa/ -o ARSC.tsv -t 4
 
-import os
+import sys
 import argparse
-from ARSC.core import process_faa
-from ARSC import __version__
 from multiprocessing import Pool
+from ARSC import __version__
+from ARSC.utils import collect_faa_files, process_faa_auto
 
-# Main
-# -----------------------
+
 def main():
-    parser = argparse.ArgumentParser(description="Compute ARSC from .faa files")
-    parser.add_argument("-i", "--input_dir", required=True, help="Directory of .faa files")
-    parser.add_argument("-o", "--output", required=True, help="Output TSV file")
+    parser = argparse.ArgumentParser(description="Compute ARSC from .faa/.faa.gz/.tar.gz files")
+    parser.add_argument("-i", "--input_dir", required=True, help="A faa, faa.gz, or tar.gz file, or directory")
+    parser.add_argument("-o", "--output", help="Output TSV file (optional). If omitted, print to stdout.")
     parser.add_argument("-t", "--threads", default=1, type=int, help="Number of threads")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args()
 
-    faa_files = [os.path.join(args.input_dir, f)
-                 for f in os.listdir(args.input_dir)
-                 if f.endswith(".faa")]
+    try:
+        items = list(collect_faa_files(args.input_dir))
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    print(f"Found {len(faa_files)} faa files.")
-    print(f"Using {args.threads} threads.")
+    print(f"Found {len(items)} files to process.", file=sys.stderr)
+    print(f"Using {args.threads} threads.", file=sys.stderr)
 
+    # Multiprocessing
     with Pool(args.threads) as pool:
-        results = pool.map(process_faa, faa_files)
+        results = pool.map(process_faa_auto, items)
 
-    # write output
-    with open(args.output, "w") as out:
-        out.write("Genome\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
+
+    # Output
+    if args.output:
+        with open(args.output, "w") as out:
+            out.write("Genome\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
+            for r in results:
+                out.write(f"{r['genome']}\t{r['N_ARSC']}\t{r['C_ARSC']}\t{r['S_ARSC']}\t{r['MW_ARSC']}\n")
+        print(f"Output written to {args.output}", file=sys.stderr)
+    else:
         for r in results:
-            out.write(f"{r[0]}\t{r[1]}\t{r[2]}\t{r[3]}\t{r[4]}\n")
-
-    print(f"Output written to {args.output}")
+            print(f"{r['genome']}\t{r['N_ARSC']}\t{r['C_ARSC']}\t{r['S_ARSC']}\t{r['MW_ARSC']}\n")
 
 if __name__ == "__main__":
     main()
