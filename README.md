@@ -62,14 +62,15 @@ ARSC -i input_dir/ -t 4 | sort -k2,2nr
 - Input directory must contain one or more amino-acid sequence fasta (`*.faa` or `*.faa.gz`) files
 
 ### Output
+
 - stdout
 - TSV file (via `-o` or `--output`, optional)
 
 Format columns: Genome, N_ARSC, C_ARSC, S_ARSC, AvgResMW <br>
-    - N-ARSC — Average number of nitrogen atoms per amino-acid residue side chain.
-    - C-ARSC — Average number of carbon atoms per amino-acid residue side chain.
-    - S-ARSC — Average number of sulfur atoms per amino-acid residue side chain.
-    - AvgResMW — Average molecular weight of amino-acid residue side chains.
+- N-ARSC — Average number of nitrogen atoms per amino-acid residue side chain.
+- C-ARSC — Average number of carbon atoms per amino-acid residue side chain.
+- S-ARSC — Average number of sulfur atoms per amino-acid residue side chain.
+- AvgResMW — Average molecular weight of amino-acid residue side chains.
 
 ### Dependencies
 - Python >= 3.8
