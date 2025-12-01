@@ -37,19 +37,14 @@ class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHe
 
 
 def main():
-    parser = argparse.ArgumentParser(description=f"{ARSC_LOGO}\n\nCompute ARSC from .faa/.faa.gz/.tar.gz files", formatter_class=CustomFormatter)
-    parser.add_argument("-i", "--input_dir", required=True, help="A faa, faa.gz, or tar.gz file, or directory")
-    parser.add_argument("-o", "--output", help="Output TSV file (optional). If omitted, print to stdout.")
+    parser = argparse.ArgumentParser(description=f"{ARSC_LOGO}\n\nCompute ARSC from .faa/.faa.gz files", formatter_class=CustomFormatter)
+    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("-i", "--input_dir", required=True, help="A faa or faa.gz file, or directory")
+    parser.add_argument("-o", "--output", help="Output TSV file w/ header (optional). If omitted, print to stdout w/o header.")
     parser.add_argument("-t", "--threads", default=1, type=int, help="Number of threads")
-    parser.add_argument("-v", "--version", action="store_true", help="Show program's version number and exit")
+
 
     args = parser.parse_args()
-
-    # -v + ARSC logo
-    if args.version:
-        print(f"{ARSC_LOGO}")
-        print(f"Version: {__version__}")
-        sys.exit(0)
 
 
     try:
