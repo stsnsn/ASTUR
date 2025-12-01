@@ -23,13 +23,34 @@ from ARSC import __version__
 from ARSC.utils import collect_faa_files, process_faa_auto
 
 
+ARSC_LOGO = """
+ .d8b.  d8888b. .d8888.  .o88b. 
+d8' `8b 88  `8D 88'  YP d8P  Y8 
+88ooo88 88oobY' `8bo.   8P      
+88~~~88 88`8b     `Y8b. 8b      
+88  `88 88 `88. db  `8D Y8b  d8 
+YP  `YP 88  `YD `8888Y'  `Y88P' 
+"""
+
+class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
+    pass
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Compute ARSC from .faa/.faa.gz/.tar.gz files")
+    parser = argparse.ArgumentParser(description=f"{ARSC_LOGO}\n\nCompute ARSC from .faa/.faa.gz/.tar.gz files", formatter_class=CustomFormatter)
     parser.add_argument("-i", "--input_dir", required=True, help="A faa, faa.gz, or tar.gz file, or directory")
     parser.add_argument("-o", "--output", help="Output TSV file (optional). If omitted, print to stdout.")
     parser.add_argument("-t", "--threads", default=1, type=int, help="Number of threads")
-    parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("-v", "--version", action="store_true", help="Show program's version number and exit")
+
     args = parser.parse_args()
+
+    # -v + ARSC logo
+    if args.version:
+        print(f"{ARSC_LOGO}")
+        print(f"Version: {__version__}")
+        sys.exit(0)
+
 
     try:
         items = list(collect_faa_files(args.input_dir))
@@ -37,6 +58,7 @@ def main():
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
+    print(f"ARSC Version: {__version__}", file=sys.stderr)
     print(f"Found {len(items)} files to process.", file=sys.stderr)
     print(f"Using {args.threads} threads.", file=sys.stderr)
 

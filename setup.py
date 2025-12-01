@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="arsc",
-    version="0.2.3",
+    version="0.2.4",
     packages=find_packages(),
     install_requires=["biopython>=1.79"],
     long_description=long_description,
