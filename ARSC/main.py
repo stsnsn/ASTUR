@@ -54,7 +54,7 @@ def main():
         print(f"Output written to {args.output}", file=sys.stderr)
     else:
         for r in results:
-            print(f"{r['genome']}\t{r['N_ARSC']}\t{r['C_ARSC']}\t{r['S_ARSC']}\t{r['MW_ARSC']}\n")
+            print(f"{r['genome']}\t{r['N_ARSC']}\t{r['C_ARSC']}\t{r['S_ARSC']}\t{r['MW_ARSC']}")
 
 if __name__ == "__main__":
     main()
