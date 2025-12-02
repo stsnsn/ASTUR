@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<!-- This html and js was build with copilot-->
+
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>ARSC: scatter plot viewer</title>
+		<!-- Plotly CDN -->
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<style>
+			body { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial; margin: 20px; color: #111; }
+			header { margin-bottom: 12px; }
+			h1 { margin: 0 0 6px 0; font-size: 1.6rem; }
+			p.lead { margin: 0 0 18px 0; color: #333; }
+			.controls { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
+			.control { display:flex; flex-direction:column; font-size:0.9rem; }
+			select { min-width: 160px; padding:6px 8px; border-radius:4px; border:1px solid #ccc; }
+			#plot { width: 100%; height: 100vh; border: 1px solid #eee; }
+			footer { margin-top: 14px; font-size:0.9rem; }
+			.small { font-size:0.85rem; color:#666 }
+			.actions { display:flex; gap:8px; align-items:center }
+			button { padding:6px 10px; border-radius:4px; border:1px solid #888; background:#f6f6f6; cursor:pointer }
+			/* prominent Y-axis selector placed above other filters */
+			.top-controls { margin: 12px 0 6px 0; display:flex; align-items:center; gap:12px; }
+			.y-control { background: linear-gradient(180deg,#fff,#f0fbff); padding:8px 12px; border-radius:8px; border:1px solid #cce; font-weight:600; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+			.y-control select { font-weight:600; min-width:220px; padding:6px 8px; }
+		</style>
+	</head>
+	<body>
+		<header>
+			<h1>ARSC Viewer (r207.0rep)</h1>
+			<p class="lead">You can filter the data by taxonomic levels and download the filtered dataset as a TSV file.</p>
+		</header>
+
+		<!-- Prominent Y-axis selector placed above other filters -->
+		<div class="top-controls">
+			<label class="y-control">Y axis:
+				<select id="ySelect"><option value="N_ARSC">N-ARSC</option><option value="C_ARSC">C-ARSC</option><option value="S_ARSC">S-ARSC</option></select>
+			</label>
+		</div>
+
+		<section class="controls" aria-label="filters">
+			<div class="control"><label>domain
+				<input list="domainList" id="domainSearch" placeholder="search..." />
+				<datalist id="domainList"></datalist>
+			</label></div>
+			<div class="control"><label>phylum
+				<input list="phylumList" id="phylumSearch" placeholder="search..." />
+				<datalist id="phylumList"></datalist>
+			</label></div>
+			<div class="control"><label>class
+				<input list="classList" id="classSearch" placeholder="search..." />
+				<datalist id="classList"></datalist>
+			</label></div>
+			<div class="control"><label>order
+				<input list="orderList" id="orderSearch" placeholder="search..." />
+				<datalist id="orderList"></datalist>
+			</label></div>
+			<div class="control"><label>family
+				<input list="familyList" id="familySearch" placeholder="search..." />
+				<datalist id="familyList"></datalist>
+			</label></div>
+			<div class="control"><label>genus
+				<input list="genusList" id="genusSearch" placeholder="search..." />
+				<datalist id="genusList"></datalist>
+			</label></div>
+			<div class="actions">
+				<button id="resetBtn">Reset filters</button>
+				<button id="downloadBtn">Download TSV</button>
+			</div>
+		</section>
+
+		<main>
+			<div id="plot"></div>
+		</main>
+
+		<footer>
+			<div class="small">Repository: <a href="https://github.com/stsnsn/ARSC" target="_blank" rel="noopener">https://github.com/stsnsn/ARSC</a></div>
+		</footer>
+
+		<script src="js/arsc_scatterplot.js"></script>
+	</body>
+</html>
+
