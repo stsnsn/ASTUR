@@ -13,6 +13,30 @@ const selects = {
 const ySelect = document.getElementById('ySelect');
 const resetBtn = document.getElementById('resetBtn');
 const downloadBtn = document.getElementById('downloadBtn');
+const markerSizeInput = document.getElementById('markerSize');
+const markerSizeVal = document.getElementById('markerSizeVal');
+
+const markerAlphaInput = document.getElementById('markerAlpha');
+const markerAlphaVal = document.getElementById('markerAlphaVal');
+
+// wire up marker alpha display and input
+if (markerAlphaInput && markerAlphaVal) {
+	markerAlphaVal.textContent = parseFloat(markerAlphaInput.value).toFixed(2);
+	markerAlphaInput.addEventListener('input', (e) => {
+		markerAlphaVal.textContent = parseFloat(e.target.value).toFixed(2);
+		try { update(); } catch (err) { /* update may not be defined yet */ }
+	});
+}
+
+// wire up marker size display and input
+if (markerSizeInput && markerSizeVal) {
+	markerSizeVal.textContent = markerSizeInput.value;
+	markerSizeInput.addEventListener('input', (e) => {
+		markerSizeVal.textContent = e.target.value;
+		// redraw with new size
+		try { update(); } catch (err) { /* update may not be defined yet during initial load */ }
+	});
+}
 
 let rows = []; // parsed data
 let header = []; // TSV header
@@ -100,10 +124,8 @@ function getFilters() {
 					groupingLevel = LEVELS[deepest];
 				}
 				const groups = {};
-				// fixed marker size and opacity for consistent appearance
-				const FIXED_MARKER_SIZE = 10; // pixels for all points
-				// default opacity (alpha)
-				const DEFAULT_OPACITY = 0.5;
+				// default opacity (alpha) when no filters are applied; fallback if slider missing
+				const DEFAULT_OPACITY = 0.1;
 				filtered.forEach(r => {
 					const key = r[groupingLevel] || 'unknown';
 					if (!groups[key]) groups[key] = { x: [], y: [], text: [], size: [] };
@@ -115,8 +137,8 @@ function getFilters() {
 					const idLine = r['id'] ? `id: ${r['id']}` : '';
 					const valLine = `${xField}: ${r[xField]}, ${yField}: ${r[yField]}`;
 					groups[key].text.push(`${idLine}<br>${taxHtml}<br>${valLine}`);
-					// marker size: use fixed size for all points
-					const s = FIXED_MARKER_SIZE;
+					// marker size: use size from slider control (fallback to 8)
+					const s = (markerSizeInput && markerSizeInput.value) ? parseInt(markerSizeInput.value) : 8;
 					groups[key].size.push(s);
 				});
 
@@ -128,8 +150,8 @@ function getFilters() {
 					name: k,
 					text: groups[k].text,
 					hovertemplate: '%{text}<extra></extra>',
-						// determine opacity based on whether any filters are active
-						marker: { size: groups[k].size, sizemode: 'area', opacity: (Object.keys(getFilters()).length > 0) ? 0.9 : DEFAULT_OPACITY }
+						// opacity is controlled solely by the alpha slider (or DEFAULT_OPACITY fallback)
+						marker: { size: groups[k].size, sizemode: 'area', opacity: ((markerAlphaInput && markerAlphaInput.value) ? parseFloat(markerAlphaInput.value) : DEFAULT_OPACITY) }
 				}));
 
 						const layout = {
@@ -286,8 +308,15 @@ function update() {
 						});
 					});
 			resetBtn.addEventListener('click', () => {
+				// clear taxonomy filters
 				Object.values(selects).forEach(s => s.value = '');
+				// reset datalist options and redraw
 				refreshAllOptions();
+				// reset marker size and alpha sliders to defaults if present
+				if (markerSizeInput) { markerSizeInput.value = 8; }
+				if (markerSizeVal) { markerSizeVal.textContent = markerSizeInput ? markerSizeInput.value : '8'; }
+				if (markerAlphaInput) { markerAlphaInput.value = 0.25; }
+				if (markerAlphaVal) { markerAlphaVal.textContent = markerAlphaInput ? parseFloat(markerAlphaInput.value).toFixed(2) : '0.10'; }
 				update();
 			});
 

@@ -30,6 +30,8 @@
 			.y-control select { font-weight:600; min-width:220px; padding:6px 8px; }
 			/* actions placed next to Y-axis for visibility */
 			.top-actions { display:flex; gap:8px; align-items:center; margin-left:8px; }
+			.marker-control { display:flex; align-items:center; gap:8px; font-size:0.95rem; color:#222; margin-left:6px; }
+			.marker-control input[type="range"] { vertical-align: middle; }
 			.top-actions button.primary { padding:8px 12px; border-radius:6px; border:1px solid #007bff; background:#007bff; color:#fff; font-weight:600; cursor:pointer; }
 			.top-actions button.secondary { padding:8px 12px; border-radius:6px; border:1px solid #007bff; background:#fff; color:#007bff; font-weight:600; cursor:pointer; }
 			.top-actions button:active { transform: translateY(1px); }
@@ -45,6 +47,14 @@
 		<div class="top-controls">
 			<label class="y-control">Y axis:
 				<select id="ySelect"><option value="N_ARSC">N-ARSC</option><option value="C_ARSC">C-ARSC</option><option value="S_ARSC">S-ARSC</option></select>
+			</label>
+			<label class="marker-control">Marker size:
+				<input id="markerSize" type="range" min="4" max="20" value="8" />
+				<span id="markerSizeVal">8</span>
+			</label>
+			<label class="marker-control">Alpha:
+				<input id="markerAlpha" type="range" min="0.05" max="1" step="0.05" value="0.25" />
+				<span id="markerAlphaVal">0.25</span>
 			</label>
 			<div class="top-actions">
 				<button id="resetBtn" class="secondary">Reset filters</button>
