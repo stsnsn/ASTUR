@@ -65,7 +65,7 @@ def main():
     # Output
     if args.output:
         with open(args.output, "w") as out:
-            out.write("Genome\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
+            out.write("File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
             for r in results:
                 out.write(f"{r['genome']}\t{r['N_ARSC']}\t{r['C_ARSC']}\t{r['S_ARSC']}\t{r['MW_ARSC']}\n")
         print(f"Output written to {args.output}", file=sys.stderr)
