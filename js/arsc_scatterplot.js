@@ -340,31 +340,6 @@ function getFilters() {
 
 			Plotly.newPlot('plot', traces, layout, {responsive: true});
 			
-			// Add click event listener to show modal with copyable data
-			const plotDiv = document.getElementById('plot');
-			plotDiv.on('plotly_click', function(data) {
-				if (!data.points || data.points.length === 0) return;
-				const pt = data.points[0];
-				const pointIndex = pt.pointIndex;
-				const curveNumber = pt.curveNumber;
-				
-				// Get the original data row for this point
-				const filters = getFilters();
-				const filteredRows = filterData(rows, filters);
-				
-				// Find the corresponding row by matching x, y values
-				const xVal = pt.x;
-				const yVal = pt.y;
-				const matchedRow = filteredRows.find(r => 
-					Math.abs(r[xField] - xVal) < 0.0001 && 
-					Math.abs(r[yField] - yVal) < 0.0001
-				);
-				
-				if (matchedRow) {
-					showDataModal(matchedRow, xField, yField);
-				}
-			});
-			
 			// if a user sample exists, re-apply its overlay after the main plot redraw
 			if (userSample) addUserSampleOverlay();
 		}
@@ -529,12 +504,43 @@ function update() {
 				}
 				const set = new Set();
 				rows.forEach(r => {
-					let ok = true;
-					for (const a in ancestorFilters) {
-						if (r[a] !== ancestorFilters[a]) { ok = false; break; }
-					}
-					if (ok && r[level]) set.add(r[level]);
-				});
+	// Update routine: get filters, filter rows, draw
+function update() {
+	const filters = getFilters();
+	const filtered = filterData(rows, filters);
+	drawPlot(filtered);
+}
+
+// Setup click event listener once (to avoid memory leak from repeated registration)
+function setupPlotClickHandler() {
+	const plotDiv = document.getElementById('plot');
+	if (!plotDiv) return;
+	
+	plotDiv.on('plotly_click', function(data) {
+		if (!data.points || data.points.length === 0) return;
+		const pt = data.points[0];
+		
+		// Get current axis fields
+		const yField = ySelect && ySelect.value ? ySelect.value : 'N_ARSC';
+		const xField = 'GC(%)';
+		
+		// Get the original data row for this point
+		const filters = getFilters();
+		const filteredRows = filterData(rows, filters);
+		
+		// Find the corresponding row by matching x, y values
+		const xVal = pt.x;
+		const yVal = pt.y;
+		const matchedRow = filteredRows.find(r => 
+			Math.abs(r[xField] - xVal) < 0.0001 && 
+			Math.abs(r[yField] - yVal) < 0.0001
+		);
+		
+		if (matchedRow) {
+			showDataModal(matchedRow, xField, yField);
+		}
+	});
+}			});
 				return Array.from(set).sort();
 			}
 
@@ -639,22 +645,24 @@ function update() {
 								// typed value not in allowed list -> ignore or clear
 								// keep it cleared to avoid inconsistent filtering
 								input.value = '';
-								onSelectChange({ target: input });
-							}
-						});
-					});
-			resetBtn.addEventListener('click', () => {
-				// clear taxonomy filters
-				Object.values(selects).forEach(s => s.value = '');
-				// reset datalist options and redraw
-				refreshAllOptions();
-				// reset marker size and alpha sliders to defaults if present
-				if (markerSizeInput) { markerSizeInput.value = 8; }
-				if (markerSizeVal) { markerSizeVal.textContent = markerSizeInput ? markerSizeInput.value : '8'; }
-				if (markerAlphaInput) { markerAlphaInput.value = 1.0; }
-				if (markerAlphaVal) { markerAlphaVal.textContent = markerAlphaInput ? parseFloat(markerAlphaInput.value).toFixed(2) : '1.00'; }
-				// clear stored user sample and input UI as part of reset
-				userSample = null;
+						}).then(text => {
+							const parsed = parseTSV(text);
+							header = parsed.header;
+							rows = parsed.data;
+							// initial population: set full option lists
+							LEVELS.forEach(l => {
+								const set = new Set(rows.map(r => r[l]).filter(Boolean));
+								const arr = Array.from(set).sort();
+								// populate datalist for the search input
+								setSelectOptions(selects[l], arr);
+							});
+							// ensure child options reflect any top-level defaults (none at start)
+							refreshAllOptions();
+							update();
+							// Setup click handler once after initial plot
+							setupPlotClickHandler();
+							if (loadingEl) loadingEl.style.display = 'none';
+						}).catch(err => {
 				removeUserSampleOverlay();
 				// restore the original upload UI and clear any displayed filename/text
 				restoreFastaContainer();
