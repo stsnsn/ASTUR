@@ -1,6 +1,9 @@
 // Path to the TSV file (relative)
 const TSV_PATH = './data/arsc_gtdb_r226rep.tsv';
 
+// Hierarchy levels (top -> bottom)
+const LEVELS = ['domain','phylum','class','order','family','genus'];
+
 // DOM elements: use the searchable inputs as the main controls
 const selects = {
 	domain: document.getElementById('domainSearch'),
@@ -480,9 +483,6 @@ function showDataModal(row, xField, yField) {
 	// Auto-select text for easy copying
 	setTimeout(() => { textarea.select(); }, 100);
 }
-
-// Hierarchy levels (top -> bottom)
-const LEVELS = ['domain','phylum','class','order','family','genus'];
 
 // Update routine: get filters, filter rows, draw
 function update() {
