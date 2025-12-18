@@ -62,16 +62,17 @@ class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHe
 
 
 def main():
-    parser = argparse.ArgumentParser(description=f"{ASTUR_LOGO}\n\nCompute ARSC from .faa/.faa.gz files", formatter_class=CustomFormatter)
+    parser = argparse.ArgumentParser(description=f"{ASTUR_LOGO}\n\nCompute ARSC from .faa/.faa.gz files\nUsage example:\n    astur Ecoli.faa.gz\n    astur -i input_directory/ -o output.tsv -a -t 4 --stats", formatter_class=CustomFormatter)
     parser.add_argument("-i", "--input_dir", required=False, help="A faa or faa.gz file, or directory")
-    parser.add_argument("input", nargs="?", help="Positional input: .faa/.faa.gz file or directory")
+    parser.add_argument("input", nargs="?", help="Positional input: .faa/.faa.gz file or directory (or use -i/--input_dir)")
     parser.add_argument("-a", "--aa-composition", action="store_true", help="Include amino acid composition ratios and total length in output")
-    parser.add_argument("-o", "--output", help="Output TSV file w/ header (optional). If omitted, print to stdout w/o header.")
+    parser.add_argument("-o", "--output", help="Output TSV file w/ header. If omitted, print to stdout w/ header.")
     parser.add_argument("-t", "--threads", default=1, type=int, help="Number of threads")
     parser.add_argument("-d", "--decimal-places", default=6, type=int, help="Number of decimal places for floating point values (default: 6)")
     parser.add_argument("--min-length", type=int, help="Minimum amino acid length (filter results)")
     parser.add_argument("--max-length", type=int, help="Maximum amino acid length (filter results)")
     parser.add_argument("-s", "--stats", action="store_true", help="Output summary statistics to stdout")
+    parser.add_argument("--no-header", action="store_true", help="Suppress header line in stdout output")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
 
 
@@ -89,10 +90,10 @@ def main():
     # Check if input is a directory
     import os
     is_dir = os.path.isdir(args.input_dir)
-    
+
     # --stats only works with directories
     if args.stats and not is_dir:
-        parser.error("--stats can only be used with directory input (not single files)")
+        parser.error("--stats can only be used with directory input (not single file)")
 
     try:
         items = list(collect_faa_files(args.input_dir))
@@ -202,19 +203,28 @@ def main():
                     out.write(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}\n")
         print(f"Output written to {args.output}", file=sys.stderr)
     else:
+        # stdout output with optional header
         if args.aa_composition:
             from ASTUR.core import aa_dictionary
             aa_keys = sorted(aa_dictionary.keys())
+            # Print header unless --no-header is specified
+            if not args.no_header:
+                header = "File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\t" + "\t".join(aa_keys) + "\tTotalAALength"
+                print(header)
             for r in results:
                 if 'error' in r:
                     continue
                 aa_comp_values = [decimal_fmt.format(r['aa_composition'].get(aa, 0)) for aa in aa_keys]
                 print(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}\t" + "\t".join(aa_comp_values) + f"\t{r['total_aa_length']}")
         else:
+            # Print header unless --no-header is specified
+            if not args.no_header:
+                print("File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW")
             for r in results:
                 if 'error' in r:
                     continue
                 print(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}")
+
 
 
 if __name__ == "__main__":
