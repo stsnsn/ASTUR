@@ -67,6 +67,19 @@ def compute_ARSC_extended_counts(counts, aa_dict):
     )
 
 
+def compute_aa_composition(counts):
+    """Compute amino acid composition ratios."""
+    total_aa = sum(counts.values())
+    if total_aa == 0:
+        return {}
+    
+    # Return composition for all amino acids in aa_dictionary
+    composition = {}
+    for aa in aa_dictionary.keys():
+        composition[aa] = counts.get(aa, 0) / total_aa
+    return composition
+
+
 def process_faa(faa_source, name=None):
     try:
         # Determine genome name
@@ -85,14 +98,18 @@ def process_faa(faa_source, name=None):
             seq = str(record.seq).replace("*", "")
             counts.update(seq)
 
+        total_aa_length = sum(counts.values())
         N, C, S, MW = compute_ARSC_extended_counts(counts, aa_dictionary)
+        aa_composition = compute_aa_composition(counts)
 
         return {
             "genome": genome_name,
             "N_ARSC": N,
             "C_ARSC": C,
             "S_ARSC": S,
-            "MW_ARSC": MW
+            "MW_ARSC": MW,
+            "aa_composition": aa_composition,
+            "total_aa_length": total_aa_length
         }
 
     except Exception as e:
