@@ -58,6 +58,7 @@ astur <FASTA_FILE or input_dir/>
 - `-o` or `--output`   <output_dir/> : output TSV file name (optional)
 - `-t` or `--threads` N : number of threads (default: 1)
 - `-s` or `--stats`     : output summary statistics to stdout (default: False)
+- `-p`, `--per-sequence`: process each sequence individually instead of the entire file
 
 - output format options
     - `-a` or `--aa-composition`   : Include amino acid composition ratios and total length in output (default: False)
@@ -72,6 +73,10 @@ astur <FASTA_FILE or input_dir/>
 ```bash
 astur test_data/genome_a.faa
 ```
+- output example:
+| query | N_ARSC | C_ARSC | S_ARSC | AvgResMW |
+| --- | --- | --- | --- | --- |
+| genome_a | 内容2 | 内容3 | 内容1 | 内容2 |
 
 #### 2. Process all `.faa` / `.faa.gz` files in a directory using 3 threads and save results as `ARSC_output.tsv`.
 ```bash
@@ -88,9 +93,9 @@ astur test_data/ -t 3 -a -s -o ARSC_output_full.tsv
 astur -i test_data/ -t 3 --no-header | sort -k2,2nr
 ```
 
-#### 5. Filter results by amino acid length 100 aa to 1,000,000 aa.
+#### 5. Process each sequence individually instead of the entire file and filter results by amino acid length > 130.
 ```bash
-astur -i test_data/ -t 3 --min-length 100 --max-length 1000000
+astur -i test_data/ -t 3 --min-length 130 -p
 ```
 
 ### Input requirements
@@ -102,7 +107,7 @@ astur -i test_data/ -t 3 --min-length 100 --max-length 1000000
 - stdout (if you need no header, use `--no-header` option)
 - TSV file (via `-o` or `--output`, optional)
 
-Default format columns: File, N_ARSC, C_ARSC, S_ARSC, AvgResMW <br>
+Default format columns: query, N_ARSC, C_ARSC, S_ARSC, AvgResMW <br>
 - N-ARSC — Average number of nitrogen atoms per amino-acid residue side chain.
 - C-ARSC — Average number of carbon atoms per amino-acid residue side chain.
 - S-ARSC — Average number of sulfur atoms per amino-acid residue side chain.

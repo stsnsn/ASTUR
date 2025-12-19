@@ -65,6 +65,7 @@ def main():
     parser = argparse.ArgumentParser(description=f"{ASTUR_LOGO}\n\nCompute ARSC from .faa/.faa.gz files\nUsage example:\n    astur Ecoli.faa.gz\n    astur -i input_directory/ -o output.tsv -a -t 4 --stats", formatter_class=CustomFormatter)
     parser.add_argument("-i", "--input_dir", required=False, help="A faa or faa.gz file, or directory")
     parser.add_argument("input", nargs="?", help="Positional input: .faa/.faa.gz file or directory (or use -i/--input_dir)")
+    parser.add_argument("-p", "--per-sequence", action="store_true", help="Process each sequence individually instead of the entire file")
     parser.add_argument("-a", "--aa-composition", action="store_true", help="Include amino acid composition ratios and total length in output")
     parser.add_argument("-o", "--output", help="Output TSV file w/ header. If omitted, print to stdout w/ header.")
     parser.add_argument("--no-header", action="store_true", help="Suppress header line in output")
@@ -107,7 +108,10 @@ def main():
 
     # Multiprocessing
     with Pool(args.threads) as pool:
-        results = pool.map(process_faa_auto, items)
+        if args.per_sequence:
+            results = pool.starmap(process_faa_auto, [(item, True) for item in items])
+        else:
+            results = pool.map(process_faa_auto, items)
 
     # Filter by length
     filtered_results = []
@@ -115,13 +119,18 @@ def main():
         if 'error' in r:
             filtered_results.append(r)
             continue
-        length = r.get('total_aa_length', 0)
-        if args.min_length is not None and length < args.min_length:
-            continue
-        if args.max_length is not None and length > args.max_length:
-            continue
-        filtered_results.append(r)
-    
+        if args.per_sequence:
+            r['sequences'] = [seq for seq in r['sequences'] if (args.min_length is None or seq['length'] >= args.min_length) and (args.max_length is None or seq['length'] <= args.max_length)]
+            if r['sequences']:
+                filtered_results.append(r)
+        else:
+            length = r.get('total_aa_length', 0)
+            if args.min_length is not None and length < args.min_length:
+                continue
+            if args.max_length is not None and length > args.max_length:
+                continue
+            filtered_results.append(r)
+
     results = filtered_results
     print(f"After filtering: {len(results)} results.", file=sys.stderr)
 
@@ -190,7 +199,7 @@ def main():
                 aa_keys = sorted(aa_dictionary.keys())
                 # Write header unless --no-header is specified
                 if not args.no_header:
-                    header = "File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\t" + "\t".join(aa_keys) + "\tTotalAALength\n"
+                    header = "query\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\t" + "\t".join(aa_keys) + "\tTotalLength\n"
                     out.write(header)
                 for r in results:
                     if 'error' in r:
@@ -200,20 +209,20 @@ def main():
             else:
                 # Write header unless --no-header is specified
                 if not args.no_header:
-                    out.write("File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
+                    out.write("query\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\n")
                 for r in results:
                     if 'error' in r:
                         continue
                     out.write(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}\n")
         print(f"Output written to {args.output}", file=sys.stderr)
     else:
-        # stdout output with optional header
+        # stdout output with header
         if args.aa_composition:
             from ASTUR.core import aa_dictionary
             aa_keys = sorted(aa_dictionary.keys())
             # Print header unless --no-header is specified
             if not args.no_header:
-                header = "File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\t" + "\t".join(aa_keys) + "\tTotalAALength"
+                header = "query\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\t" + "\t".join(aa_keys) + "\tTotalLength"
                 print(header)
             for r in results:
                 if 'error' in r:
@@ -223,7 +232,7 @@ def main():
         else:
             # Print header unless --no-header is specified
             if not args.no_header:
-                print("File\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW")
+                print("query\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW")
             for r in results:
                 if 'error' in r:
                     continue

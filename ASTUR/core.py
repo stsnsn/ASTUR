@@ -80,7 +80,7 @@ def compute_aa_composition(counts):
     return composition
 
 
-def process_faa(faa_source, name=None):
+def process_faa(faa_source, name=None, per_sequence=False):
     try:
         # Determine genome name
         genome_name = name
@@ -92,25 +92,42 @@ def process_faa(faa_source, name=None):
                     base = base[: -len(ext)]
             genome_name = base
 
-        counts = Counter()
+        if per_sequence:
+            results = []
+            for record in SeqIO.parse(faa_source, "fasta"):
+                seq = str(record.seq).replace("*", "")
+                seq_counts = Counter(seq)
+                seq_length = sum(seq_counts.values())
+                N, C, S, MW = compute_ARSC_extended_counts(seq_counts, aa_dictionary)
+                results.append({
+                    "sequence_id": record.id,
+                    "length": seq_length,
+                    "N_ARSC": N,
+                    "C_ARSC": C,
+                    "S_ARSC": S,
+                    "MW_ARSC": MW,
+                    "aa_composition": compute_aa_composition(seq_counts)
+                })
+            return {"genome": genome_name, "sequences": results}
+        else:
+            counts = Counter()
+            for record in SeqIO.parse(faa_source, "fasta"):
+                seq = str(record.seq).replace("*", "")
+                counts.update(seq)
 
-        for record in SeqIO.parse(faa_source, "fasta"):
-            seq = str(record.seq).replace("*", "")
-            counts.update(seq)
+            total_aa_length = sum(counts.values())
+            N, C, S, MW = compute_ARSC_extended_counts(counts, aa_dictionary)
+            aa_composition = compute_aa_composition(counts)
 
-        total_aa_length = sum(counts.values())
-        N, C, S, MW = compute_ARSC_extended_counts(counts, aa_dictionary)
-        aa_composition = compute_aa_composition(counts)
-
-        return {
-            "genome": genome_name,
-            "N_ARSC": N,
-            "C_ARSC": C,
-            "S_ARSC": S,
-            "MW_ARSC": MW,
-            "aa_composition": aa_composition,
-            "total_aa_length": total_aa_length
-        }
+            return {
+                "genome": genome_name,
+                "N_ARSC": N,
+                "C_ARSC": C,
+                "S_ARSC": S,
+                "MW_ARSC": MW,
+                "aa_composition": aa_composition,
+                "total_aa_length": total_aa_length
+            }
 
     except Exception as e:
         return {"genome": genome_name if name else None, "error": str(e)}
