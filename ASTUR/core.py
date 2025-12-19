@@ -94,7 +94,7 @@ def process_faa(faa_source, name=None, per_sequence=False):
 
         if per_sequence:
             results = []
-            for record in SeqIO.parse(faa_source, "fasta"):
+            for record in SeqIO.parse(faa_source, "fasta-blast"):
                 seq = str(record.seq).replace("*", "")
                 seq_counts = Counter(seq)
                 seq_length = sum(seq_counts.values())
@@ -111,7 +111,7 @@ def process_faa(faa_source, name=None, per_sequence=False):
             return {"genome": genome_name, "sequences": results}
         else:
             counts = Counter()
-            for record in SeqIO.parse(faa_source, "fasta"):
+            for record in SeqIO.parse(faa_source, "fasta-blast"):
                 seq = str(record.seq).replace("*", "")
                 counts.update(seq)
 
