@@ -237,7 +237,19 @@ def main():
                 if 'error' in r:
                     continue
                 print(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}")
-
+    if args.per_sequence:
+        # 配列ごとの出力
+        if not args.no_header:
+            print("query\tsequence_id\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW\tlength")
+        for r in results:
+            for seq in r['sequences']:
+                print(f"{r['genome']}\t{seq['sequence_id']}\t{decimal_fmt.format(seq['N_ARSC'])}\t{decimal_fmt.format(seq['C_ARSC'])}\t{decimal_fmt.format(seq['S_ARSC'])}\t{decimal_fmt.format(seq['MW_ARSC'])}\t{seq['length']}")
+    else:
+        # ファイル全体の出力
+        if not args.no_header:
+            print("query\tN_ARSC\tC_ARSC\tS_ARSC\tAvgResMW")
+        for r in results:
+            print(f"{r['genome']}\t{decimal_fmt.format(r['N_ARSC'])}\t{decimal_fmt.format(r['C_ARSC'])}\t{decimal_fmt.format(r['S_ARSC'])}\t{decimal_fmt.format(r['MW_ARSC'])}")
 
 
 if __name__ == "__main__":
