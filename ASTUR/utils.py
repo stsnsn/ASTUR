@@ -46,15 +46,16 @@ def collect_faa_files(input_path):
     raise ValueError(f"-i path does not exist: {input_path}")
 
 
-def process_faa_auto(item):
+def process_faa_auto(item, per_sequence=False):
     """
     item: {"handle": path_str, "name": genome_name}
+    per_sequence: bool, whether to process sequences individually
     """
     handle = item["handle"]
     name = item["name"]
 
     if handle.endswith(".gz"):
         with gzip.open(handle, "rt") as f:
-            return process_faa(f, name=name)
+            return process_faa(f, name=name, per_sequence=per_sequence)
     else:
-        return process_faa(handle, name=name)
+        return process_faa(handle, name=name, per_sequence=per_sequence)
