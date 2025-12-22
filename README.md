@@ -58,7 +58,7 @@ arsc <FASTA_FILE (.faa / .faa.gz) or input_dir/>
 - `-p`, `--per-sequence`: process each sequence individually instead of the entire file
 
 - output format options
-    - `-a` or `--aa-composition`   : Include amino acid composition ratios and total length in output (default: False)
+    - `-a` or `--aa-composition`   : Include amino acid composition ratios in output (default: False)
     - `-d` or `--decimal-places` N : Number of decimal places for floating point values (default: 6)
     - `--no-header`    : Suppress header line in output (default: False)
     - `--max-length` N : number of maximal amino acid length (default: None)
