@@ -110,6 +110,7 @@ Default format columns: query, N_ARSC, C_ARSC, S_ARSC, AvgResMW, TotalLenghth <b
 - C-ARSC — Average number of carbon atoms per amino-acid residue side chain.
 - S-ARSC — Average number of sulfur atoms per amino-acid residue side chain.
 - AvgResMW — Average molecular weight of amino-acid residues (not only side chain!).
+- TotalLenghth — Total amino acid length.
 
 ### Dependencies
 - Python >= 3.8
