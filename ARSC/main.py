@@ -22,48 +22,22 @@ from ARSC import __version__
 from ARSC.utils import collect_faa_files, process_faa_auto
 from ARSC.core import aa_dictionary
 
-ASTUR_LOGO = """
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;+;;xx+X;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xX+xxxxxX++;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xxxXXXXxXX+;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;+XXXXXXXxxX+;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;XXXXXXXXXx;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXx;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXX+;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXXx;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;+XXXXXXXXXXX+;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXXX+;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXXX+;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;+XXXXXXXXXXXx;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;+++;+XXXXXXXXXXXx;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;xXXXXXXXXXXXXXXXXx;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;xXXXXXXXXXXXX+;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;+XXXXXXXXXXXXXXXXXXXx;;;;;;;;
-;;;;;;;;;;;;;;;;;;;+xXXXXXXXXXXXXXXXXXXXXx;;;;;;;;
-;;;;;;;;;;;;;;;;;;xXXXXXXXXXXXXXXXXXXXXXXx;;;;;;;;
-;;;;;;;;;;;;;;;;+XXXXXXXXXXXXXx+XXXXXXXXx+;;;;;;;;
-;;;;;;;;;;;;;;+XXXXXXXXXXXXXXx;;xXXXXXXx+;;;;;;;;;
-;;;;;;;;;;;;+XXXXXXXXXXXXXXX+;;;;XXXxX;;;;;;;;;;;;
-;;;;;;;;;+xXXXXXXXXXXXXXXXx;;;;;;;+;;;;;;;;;;;;;;;
-;;;;;;;+XXXXXXXXXXXXXXXXx;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;++XXXXXXXXXXXXx+;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;xxxxXXXXXXXx+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;xxXxXxX++;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;xx+X++;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- .d888888  .d88888b  d888888P dP     dP  888888ba 
-d8'    88  88.    "'    88    88     88  88    `8b
-88aaaaa88a `Y88888b.    88    88     88 a88aaaa8P'
-88     88        `8b    88    88     88  88   `8b.
-88     88  d8'   .8P    88    Y8.   .8P  88     88
-88     88   Y88888P     dP    `Y88888P'  dP     dP
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+quickARSC_LOGO = """
+                  _              _____   _____  _____ 
+                 | |       /\   |  __ \ / ____|/ ____|
+  __ _ _   _  ___| | __   /  \  | |__) | (___ | |     
+ / _` | | | |/ __| |/ /  / /\ \ |  _  / \___ \| |     
+| (_| | |_| | (__|   <  / ____ \| | \ \ ____) | |____ 
+ \__, |\__,_|\___|_|\_\/_/    \_\_|  \_\_____/ \_____|
+    | |                                               
+    |_|                                               
 """
 
 class CustomFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
     pass
 
 def main():
-    parser = argparse.ArgumentParser(description=f"{ASTUR_LOGO}\n\nCompute ARSC from .faa/.faa.gz files", formatter_class=CustomFormatter)
+    parser = argparse.ArgumentParser(description=f"{quickARSC_LOGO}\n\nCompute ARSC from .faa/.faa.gz files", formatter_class=CustomFormatter)
     parser.add_argument("-i", "--input_dir", help="Input file or directory")
     parser.add_argument("input", nargs="?", help="Positional input: .faa/.faa.gz file or directory")
     parser.add_argument("-p", "--per-sequence", action="store_true", help="Process each sequence individually")
